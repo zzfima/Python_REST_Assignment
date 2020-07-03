@@ -28,7 +28,7 @@ def index():
     return "Its simple Organization Personnel Managing system"
 
 
-@app.route('/personnelmanaging/api/v1.0/personnel', methods=['GET'])
+@app.route('/personnelmanaging/api/v1.0/get_all_personnel', methods=['GET'])
 def get_all_personnel():
     """GET All Personnel
 
@@ -37,7 +37,7 @@ def get_all_personnel():
     return jsonify({'all_personnel': all_personnel})
 
 
-@app.route('/personnelmanaging/api/v1.0/personnel/<string:personnel_name>', methods=['GET'])
+@app.route('/personnelmanaging/api/v1.0/get_personnel/<string:personnel_name>', methods=['GET'])
 def get_personnel(personnel_name):
     """GET Personnel by name
 
@@ -51,13 +51,14 @@ def get_personnel(personnel_name):
     return jsonify({'personnel': personnel[0]})
 
 
-@app.route('/personnelmanaging/api/v1.0/personnel', methods=['POST'])
+@app.route('/personnelmanaging/api/v1.0/add_personnel', methods=['POST'])
 def add_personnel():
     """Add personnel
 
     Args:
         personnel (personnel): object, describes personnel"""
-    if not request.json or not 'name' in request.json:
+    mandatory_fields = ['address', 'name', 'salary', 'devision', 'birthday']
+    if not request.json or not any(f in request.json for f in mandatory_fields):
         abort(400)
     personnel = {
         'address': request.json['address'],
@@ -70,6 +71,16 @@ def add_personnel():
     return jsonify({'personnel': personnel}), 201
 
 
+@app.route('/personnelmanaging/api/v1.0/remove_personnel/<string:personnel_name>', methods=['POST'])
+def delete_task(personnel_name):
+    personnel = [p for p in all_personnel if p['name'] == personnel_name]
+    print(personnel)
+    if len(personnel) == 0:
+        abort(404)
+    all_personnel.remove(personnel[0])
+    return jsonify({'result': True})
+
+
 if __name__ == '__main__':
     app.run()
 
@@ -77,4 +88,6 @@ if __name__ == '__main__':
 # 1. In VSCode terminal: Server\python -m flask run
 # 2. CMD: Server\python app.py
 # Add personnel in GIT Bush:
-# curl -i -H "Content-Type: application/json" -X POST -d '{"address":"Akko", "name":"Maya", "salary":3333, "devision":"other", "birthday":"1960-05-13"}' http://localhost:5000/personnelmanaging/api/v1.0/personnel
+# curl -i -H "Content-Type: application/json" -X POST -d '{"address":"Akko", "name":"Maya", "salary":3333, "devision":"other", "birthday":"1960-05-13"}' http://localhost:5000/personnelmanaging/api/v1.0/add_personnel
+# remove personnel:
+#
