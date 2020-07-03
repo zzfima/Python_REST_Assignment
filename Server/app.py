@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, abort, request
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -51,6 +52,21 @@ def get_personnel(personnel_name):
     return jsonify({'personnel': personnel[0]})
 
 
+@app.route('/personnelmanaging/api/v1.0/get_personnel_by_birthday_month/<int:birthday_month>', methods=['GET'])
+def get_personnel_by_birthday_month(birthday_month):
+    """GET Personnel by birthday month
+
+    Args:
+        birthday_month (int): month of birthday
+    Returns:
+        JSON: concrete personnel which birthday feet by month"""
+    personnel = [p for p in all_personnel if datetime.strptime(
+        p['birthday'], '%Y-%m-%d').month == birthday_month]
+    if len(personnel) == 0:
+        abort(404)
+    return jsonify({'personnel': personnel})
+
+
 @app.route('/personnelmanaging/api/v1.0/add_personnel', methods=['POST'])
 def add_personnel():
     """Add personnel
@@ -69,6 +85,7 @@ def add_personnel():
     }
     all_personnel.append(personnel)
     return jsonify({'personnel': personnel}), 201
+
 
 @app.route('/personnelmanaging/api/v1.0/remove_personnel', methods=['DELETE'])
 def delete_personnel():
@@ -93,5 +110,3 @@ if __name__ == '__main__':
 # curl -i -H "Content-Type: application/json" -X POST -d '{"address":"Akko", "name":"Maya", "salary":3333, "devision":"other", "birthday":"1960-05-13"}' http://localhost:5000/personnelmanaging/api/v1.0/add_personnel
 # remove personnel:
 # curl -i -H "Content-Type: application/json" -X DELETE -d '{"name":"Maya"}' http://localhost:5000/personnelmanaging/api/v1.0/remove_personnel
-
-
