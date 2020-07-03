@@ -1,24 +1,10 @@
 from flask import Flask, jsonify, abort, request
 from datetime import datetime
+import json
 
 app = Flask(__name__)
 
-all_personnel = [
-    {
-        'address': 'Shlomi, hertsel 14/14, 577688',
-        'name': 'Avi Shalom',
-        'salary': 12500,
-        'devision': 'Software',
-        'birthday': '1970-04-23'
-    },
-    {
-        'address': 'Haifa, magenim 5, 654667',
-        'name': 'Moshe Cohen',
-        'salary': 7000,
-        'devision': 'Software',
-        'birthday': '1980-05-13'
-    }
-]
+all_personnel = []
 
 
 @app.route('/')
@@ -84,6 +70,7 @@ def add_personnel():
         'birthday': request.json['birthday']
     }
     all_personnel.append(personnel)
+    SaveJson()
     return jsonify({'personnel': personnel}), 201
 
 
@@ -97,10 +84,24 @@ def delete_personnel():
     if len(personnel) == 0:
         abort(404)
     all_personnel.remove(personnel[0])
+    SaveJson()
     return jsonify({'result': True})
 
 
+def SaveJson():
+    global all_personnel
+    with open('Server/personnel.json', 'w') as p:
+        json.dump(all_personnel, p)
+
+
+def LoadJson():
+    global all_personnel
+    with open('Server/personnel.json', 'r') as p:
+        all_personnel = json.load(p)
+
+
 if __name__ == '__main__':
+    LoadJson()
     app.run()
 
 # Run server by
