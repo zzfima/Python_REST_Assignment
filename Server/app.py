@@ -1,43 +1,46 @@
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify, abort, request
 
 app = Flask(__name__)
 
 all_personnel = [
     {
-        'name': 'Avi Shalom',
         'address': 'Shlomi, hertsel 14/14, 577688',
+        'name': 'Avi Shalom',
         'salary': 12500,
         'devision': 'Software',
         'birthday': '1970-04-23'
     },
     {
-        'name': 'Moshe Cohen',
         'address': 'Haifa, magenim 5, 654667',
+        'name': 'Moshe Cohen',
         'salary': 7000,
         'devision': 'Software',
         'birthday': '1980-05-13'
     }
 ]
 
+
 @app.route('/')
 def index():
-    """Get empty route
+    """Get Welcome message
     Returns:
         string: start message"""
     return "Its simple Organization Personnel Managing system"
 
 
-@app.route('/personnel/api/v1.0/all_personnel', methods=['GET'])
+@app.route('/personnelmanaging/api/v1.0/personnel', methods=['GET'])
 def get_all_personnel():
     """GET All Personnel
+
     Returns:
-        [JSON]: all Personnel"""
+        JSON: all Personnel"""
     return jsonify({'all_personnel': all_personnel})
 
 
-@app.route('/personnel/api/v1.0/personnel/<string:personnel_name>', methods=['GET'])
+@app.route('/personnelmanaging/api/v1.0/personnel/<string:personnel_name>', methods=['GET'])
 def get_personnel(personnel_name):
     """GET Personnel by name
+
     Args:
         personnel_name (string): personnel name
     Returns:
@@ -48,5 +51,30 @@ def get_personnel(personnel_name):
     return jsonify({'personnel': personnel[0]})
 
 
+@app.route('/personnelmanaging/api/v1.0/personnel', methods=['POST'])
+def add_personnel():
+    """Add personnel
+
+    Args:
+        personnel (personnel): object, describes personnel"""
+    if not request.json or not 'name' in request.json:
+        abort(400)
+    personnel = {
+        'address': request.json['address'],
+        'name': request.json['name'],
+        'salary': request.json['salary'],
+        'devision': request.json['devision'],
+        'birthday': request.json['birthday']
+    }
+    all_personnel.append(personnel)
+    return jsonify({'personnel': personnel}), 201
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
+
+# Run server by
+# 1. In VSCode terminal: Server\python -m flask run
+# 2. CMD: Server\python app.py
+# Add personnel in GIT Bush:
+# curl -i -H "Content-Type: application/json" -X POST -d '{"address":"Akko", "name":"Maya", "salary":3333, "devision":"other", "birthday":"1960-05-13"}' http://localhost:5000/personnelmanaging/api/v1.0/personnel
