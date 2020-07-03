@@ -70,9 +70,11 @@ def add_personnel():
     all_personnel.append(personnel)
     return jsonify({'personnel': personnel}), 201
 
-
-@app.route('/personnelmanaging/api/v1.0/remove_personnel/<string:personnel_name>', methods=['POST'])
-def delete_task(personnel_name):
+@app.route('/personnelmanaging/api/v1.0/remove_personnel', methods=['DELETE'])
+def delete_personnel():
+    if not request.json or not 'name' in request.json:
+        abort(400)
+    personnel_name = request.json['name']
     personnel = [p for p in all_personnel if p['name'] == personnel_name]
     print(personnel)
     if len(personnel) == 0:
@@ -90,4 +92,6 @@ if __name__ == '__main__':
 # Add personnel in GIT Bush:
 # curl -i -H "Content-Type: application/json" -X POST -d '{"address":"Akko", "name":"Maya", "salary":3333, "devision":"other", "birthday":"1960-05-13"}' http://localhost:5000/personnelmanaging/api/v1.0/add_personnel
 # remove personnel:
-#
+# curl -i -H "Content-Type: application/json" -X DELETE -d '{"name":"Maya"}' http://localhost:5000/personnelmanaging/api/v1.0/remove_personnel
+
+
